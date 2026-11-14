@@ -1,0 +1,7 @@
+# 단독으로 올릴 때(Netlify). publish 는 site/ — tools/site.mjs 가 dist/ 를 붙는 주소(basePath) 아래로 옮겨 담는다.
+[build]
+  command = "npm install --no-audit --no-fund --legacy-peer-deps && npm run build"
+  publish = "site"
+
+[build.environment]
+  NODE_VERSION = "22"
