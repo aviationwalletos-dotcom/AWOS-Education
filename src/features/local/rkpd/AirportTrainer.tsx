@@ -70,6 +70,11 @@ export default function AirportTrainer() {
       data-testid="rkpd-3d"
       className="relative h-[calc(100svh-210px)] min-h-[420px] w-full overflow-hidden rounded-[16px] border border-[#E6EBF2] bg-[#DBE7F3]"
     >
+      {!narrow && (
+        <p className="pointer-events-none absolute bottom-2 left-2 z-[5] rounded-[8px] bg-white/85 px-2.5 py-1 text-[11.5px] font-semibold text-[#475569]">
+          방향키 · WASD 이동 · Q/E 회전 · +/- 확대
+        </p>
+      )}
       {failed && <p className="absolute inset-0 flex items-center justify-center p-6 text-center text-[14px] text-[#475569]">이 기기에서는 3D 화면을 열 수 없어요(WebGL).</p>}
       {info && (
         <div

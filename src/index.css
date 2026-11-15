@@ -47,6 +47,10 @@ body {
   .menu-rail-body {
     min-width: 0;
   }
+  /* 본문이 길어도 왼쪽 레일의 흰 면과 경계선이 끝까지 이어지게 */
+  .menu-rail-layout {
+    background: linear-gradient(to right, #fff calc(var(--rail-w, 210px) - 1px), #e6ebf2 calc(var(--rail-w, 210px) - 1px), #e6ebf2 var(--rail-w, 210px), transparent var(--rail-w, 210px));
+  }
 }
 
 /* 묶음 펼침 · 접힘 */

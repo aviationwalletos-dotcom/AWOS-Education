@@ -492,6 +492,61 @@ export function createAirportScene(host: HTMLElement, onPick: (id: string | null
   ro.observe(host)
   resize()
 
+  // ── 키보드: 방향키 · WASD = 지면 위 이동(보는 방향 기준), Q/E = 회전, +/- = 확대 · 축소 ────────
+  const held = new Set<string>()
+  const KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'q', 'e', '+', '=', '-', '_']
+  const typing = () => {
+    const el = document.activeElement
+    return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || (el as HTMLElement).isContentEditable)
+  }
+  const onKeyDown = (e: KeyboardEvent) => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key
+    if (!KEYS.includes(k) || typing() || !host.isConnected) return
+    e.preventDefault()
+    held.add(k)
+    anim = null
+  }
+  const onKeyUp = (e: KeyboardEvent) => held.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key)
+  const onBlur = () => held.clear()
+  window.addEventListener('keydown', onKeyDown)
+  window.addEventListener('keyup', onKeyUp)
+  window.addEventListener('blur', onBlur)
+  let lastT = performance.now()
+  function keyMove() {
+    const now = performance.now()
+    const dt = Math.min((now - lastT) / 1000, 0.05)
+    lastT = now
+    if (!held.size) return
+    const dist = camera.position.distanceTo(controls.target)
+    const fwd = new THREE.Vector3().subVectors(controls.target, camera.position).setY(0)
+    if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, -1)
+    fwd.normalize()
+    const right = new THREE.Vector3(-fwd.z, 0, fwd.x)
+    const speed = Math.max(dist, 80) * 0.35 * dt
+    const mv = new THREE.Vector3()
+    if (held.has('ArrowUp') || held.has('w')) mv.add(fwd)
+    if (held.has('ArrowDown') || held.has('s')) mv.sub(fwd)
+    if (held.has('ArrowRight') || held.has('d')) mv.add(right)
+    if (held.has('ArrowLeft') || held.has('a')) mv.sub(right)
+    if (mv.lengthSq()) {
+      mv.normalize().multiplyScalar(speed)
+      camera.position.add(mv)
+      controls.target.add(mv)
+    }
+    const rot = (held.has('e') ? 1 : 0) - (held.has('q') ? 1 : 0)
+    if (rot) {
+      const off = camera.position.clone().sub(controls.target)
+      off.applyAxisAngle(new THREE.Vector3(0, 1, 0), -rot * 1.2 * dt)
+      camera.position.copy(controls.target).add(off)
+    }
+    const zoom = (held.has('-') || held.has('_') ? 1 : 0) - (held.has('+') || held.has('=') ? 1 : 0)
+    if (zoom) {
+      const off = camera.position.clone().sub(controls.target)
+      const len = THREE.MathUtils.clamp(off.length() * (1 + zoom * 1.5 * dt), controls.minDistance, controls.maxDistance)
+      camera.position.copy(controls.target).add(off.setLength(len))
+    }
+  }
+
   let raf = 0
   const loop = () => {
     raf = requestAnimationFrame(loop)
@@ -502,6 +557,7 @@ export function createAirportScene(host: HTMLElement, onPick: (id: string | null
       controls.target.lerpVectors(anim.tFrom, anim.tTo, s)
       if (k >= 1) anim = null
     }
+    keyMove()
     controls.update()
     renderer.render(scene, camera)
   }
@@ -528,6 +584,9 @@ export function createAirportScene(host: HTMLElement, onPick: (id: string | null
     },
     dispose() {
       cancelAnimationFrame(raf)
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('blur', onBlur)
       ro.disconnect()
       renderer.domElement.removeEventListener('pointerdown', onDown)
       renderer.domElement.removeEventListener('pointerup', onUp)

@@ -34,6 +34,18 @@ export const MENU: MenuGroup[] = [
         plan: ['Direct · Teardrop · Parallel 판단', '진입부터 한 바퀴까지 비행'],
       },
       {
+        id: 'radial',
+        label: '래디얼 인터셉트',
+        desc: '지정 래디얼로 진입해 따라가기',
+        plan: ['래디얼 진입 각 판단', '추적 오차 채점'],
+      },
+      {
+        id: 'dme-arc',
+        label: 'DME Arc',
+        desc: '일정 DME 거리를 유지하며 원호 비행',
+        plan: ['Arc 진입 · 유지', '거리 오차 채점'],
+      },
+      {
         id: 'task',
         label: '통합 과제',
         desc: 'Fix-to-Fix 와 Holding 을 이어서 하는 평가',
