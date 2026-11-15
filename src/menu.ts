@@ -125,7 +125,7 @@ export const MENU: MenuGroup[] = [
       {
         id: 'airport',
         label: '비행장 · 장주',
-        desc: '비행장 배치와 장주',
+        desc: '정석비행장(RKPD) 3D — 표지를 누르면 뜻과 근거가 나온다',
         plan: ['활주로 · 유도로 · 주기장', '장주 경로와 고도'],
         awos: ['기관 설정으로 교육원마다 다른 내용을 보여 준다'],
       },
